@@ -312,6 +312,39 @@
                     }
                 });
 
+                // [OHOS: about] 本壳无官方 C++ 壳注入 app:version——官方桌面壳经
+                // on_native_message 事件注入版本信息，这是「关于」侧栏项（默认
+                // hidden）显示与 About 视图创建的唯一通道。页面自治补位：init 时
+                // 两处订阅（本控制器与 panels.js 的侧栏显示）必然已就位，fetch
+                // 构建产物 version.json（ver=产品版本，构建期 PRODUCT_VERSION）
+                // 后单次 fire 官方事件即可——消费链全部官方原样。品牌字段对齐
+                // 构建链 patch_about_brand：不提供 link/site（官网行已 patch 为
+                // 许可链接）与 rights（版权行 patch 为 CREDIT 归属行）。
+                (function (_self) {
+                    var _fire = function (ver) {
+                        var opts = {
+                            appname: 'Pure Office',
+                            version: (ver ? '版本 ' + ver : ''),
+                            commercial: false,
+                            active: false,
+                            changelog: false
+                        };
+                        try {
+                            window.sdk.fire('on_native_message', ['app:version', JSON.stringify(opts)]);
+                        } catch (e) {
+                            console.log('OHOS about fire error: ' + e);
+                        }
+                    };
+                    try {
+                        fetch('version.json')
+                            .then(function (r) { return r.json(); })
+                            .then(function (j) { _fire(j && j.ver ? String(j.ver) : ''); })
+                            .catch(function () { _fire(''); });
+                    } catch (e2) {
+                        _fire('');
+                    }
+                })(this);
+
                 return this;
             },
             onfeaturesavailable: _on_features_avalable
