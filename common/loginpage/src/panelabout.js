@@ -93,15 +93,19 @@
         let _html = `<div class="flexbox">
                         <div class="box-ver">
                             <section class="hbox">
-                                <div id="idx-about-cut-logo" class="${_opts.logocls}">
+                                <!-- [OHOS: about-brand] 官方 logo 图示隐藏（图示内含超大
+                                     ONLYOFFICE 字样，主品牌为 Pure Office）；appname 写死
+                                     （事件 opts.appname 同值双保险）；版本行去「商业版/社区版」
+                                     前缀 label（本壳为 AGPL 社区构建，label 不成立） -->
+                                <div id="idx-about-cut-logo" class="${_opts.logocls}" style="display:none">
                                     <svg class="ver-logo">
                                         <use id="idx-ver-logo--light" href="#idx-logo-light" />
                                         <use id="idx-ver-logo--dark" href="#idx-logo-dark" />
                                     </svg>
                                 </div>
                                 <div class="vbox">
-                                    <p id="idx-about-appname">${_opts.appname}</p>
-                                    <p id="idx-about-version"><span l10n>${strVersion}</span> ${_opts.version}</p>
+                                    <p id="idx-about-appname">Pure Office</p>
+                                    <p id="idx-about-version">${_opts.version}</p>
                                 </div>
                             </section><p></p>
                             <div class="separator"></div>
@@ -111,9 +115,13 @@
                                 ${_opts.edition}
                                 <a class="ver-checkupdate link hidden" draggable='false' data-state='check' href="#" l10n>${_lang.checkUpdates}</a>
                                 <div class="about-field"><a class="ver-changelog link" draggable='false' target="popup" href=${_opts.changelog} l10n>${_lang.aboutChangelog}</a></div>
-                                <a class="ver-site link about-field" target="popup" href="${_opts.link}">${_opts.site}</a>
-                                <div class="ver-copyright about-field">${_opts.rights}</div> 
-                            </div>                    
+                                <!-- [OHOS: about-brand] 官网行删除（面板不留两处 AGPL 文案）；
+                                     版权行 = 归属声明（AGPL-3.0 即许可全文入口）+ 源码/声明行
+                                     （AGPL §6 对应源码可得），点击 lic-open 弹层渲染全文
+                                     （ArkWeb 无多窗口语义，绑定见 _on_native_message 建 view 后） -->
+                                <div class="ver-copyright about-field">基于 ONLYOFFICE DesktopEditors（<a class="link lic-open" href="/onlyoffice/licenses/LICENSE.txt">AGPL-3.0</a>）</div>
+                                <div class="ver-copyright about-field">完整源码与第三方声明见&nbsp;<a class="link lic-open" href="/onlyoffice/licenses/NOTICE.txt">NOTICE</a></div>
+                            </div>
                         </div>`+
                         // '<div class="box-license flex-fill">'+
                         //   '<iframe id="framelicense" src="license.htm"></iframe>'+
@@ -165,6 +173,17 @@
                     this.view.$menuitem && this.view.$menuitem.removeClass('extra');
                     this.view.$body = $(this.view.paneltemplate(args));
                     this.view.$dialog = new AboutDialog();
+                    // [OHOS: lic-dialog] 归属/源码行的许可全文弹层绑定（ArkWeb 无
+                    // 多窗口，target=_blank 会被静默丢弃——原 ascshim 55_lic 注入段
+                    // 的全局捕获拦截收敛为面板内精准触发；弹层实现见文件尾）
+                    this.view.$body.on('click', 'a.lic-open', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        var href = $(this).attr('href');
+                        window.__ohosShowLicDialog(href,
+                            /\/NOTICE\.txt$/i.test(href) ? '第三方声明与源码获取' : '许可证文本');
+                        return false;
+                    });
                 } else {
                     if ( !!args.opts && !!args.opts.edition ) {
                         $('#idx-ver-edition', this.view.$body).html(args.opts.edition);
@@ -355,6 +374,62 @@
 /*
 *   controller definition
 */
+
+// [OHOS: lic-dialog] 许可/声明全文弹层（原 ascshim 55_lic 注入段源码化收敛到
+// 本域）：全屏遮罩 + iframe srcdoc 渲染本地文本；点遮罩框外关闭；打开时关掉
+// 其下的官方 dialog（遮罩全屏覆盖，叠着面板无意义）。
+window.__ohosShowLicDialog = function (href, titleText) {
+    var mask = window.__ohosLicMask;
+    if (!mask) {
+        mask = window.__ohosLicMask = document.createElement('div');
+        mask.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100001;display:none;';
+        var box = document.createElement('div');
+        box.style.cssText = 'position:absolute;width:84%;height:84%;left:8%;top:8%;' +
+            'background:#fff;border-radius:8px;overflow:hidden;display:flex;flex-direction:column;' +
+            'box-shadow:0 6px 30px rgba(0,0,0,.3);';
+        var bar = document.createElement('div');
+        bar.style.cssText = 'height:44px;background:#f2f2f2;flex:none;display:flex;' +
+            'align-items:center;justify-content:space-between;padding:0 14px;';
+        var title = document.createElement('span');
+        title.style.cssText = 'color:#444;font-size:14px;';
+        var close = document.createElement('button');
+        close.textContent = '✕ 关闭';
+        close.style.cssText = 'border:none;background:transparent;color:#444;font-size:16px;' +
+            'cursor:pointer;padding:4px 8px;';
+        close.onclick = function () { mask.style.display = 'none'; };
+        bar.appendChild(title);
+        bar.appendChild(close);
+        var frame = document.createElement('iframe');
+        frame.style.cssText = 'flex:1;border:none;width:100%;background:#fff;';
+        box.appendChild(bar);
+        box.appendChild(frame);
+        mask.appendChild(box);
+        mask.__title = title;
+        mask.__frame = frame;
+        mask.addEventListener('click', function (e) {
+            if (e.target === mask) { mask.style.display = 'none'; }
+        });
+        document.body.appendChild(mask);
+    }
+    try {
+        document.querySelectorAll('dialog.dlg').forEach(function (d) {
+            if (typeof d.close === 'function') { d.close(); }
+        });
+    } catch (e) {}
+    mask.__title.textContent = titleText;
+    mask.__frame.srcdoc = '<pre style="white-space:pre-wrap;padding:20px 24px;font:12px/1.6 monospace;color:#333;">加载中…</pre>';
+    mask.style.display = 'block';
+    fetch(href)
+        .then(function (r) { return r.text(); })
+        .then(function (txt) {
+            var esc = String(txt).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            mask.__frame.srcdoc = '<pre style="white-space:pre-wrap;padding:20px 24px;' +
+                'font:12px/1.6 monospace;color:#333;">' + esc + '</pre>';
+        })
+        .catch(function () {
+            mask.__frame.srcdoc = '<pre style="padding:20px 24px;color:#c00;">加载失败：' + href + '</pre>';
+        });
+};
 
 // window.CommonEvents.on('main:ready', function(){
 //     var p = new ControllerAbout({});

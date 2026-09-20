@@ -721,19 +721,10 @@
                                 bgColorWinXP: '#f36700',
                             },
                             icon: '#pptx-big',
-                        },
-                        {
-                            id: 'form',
-                            title: utils.Lang.newForm,
-                            langKey: 'newForm',
-                            formatLabel: {
-                                value: 'PDF',
-                                gradientColorStart: '#F36653',
-                                gradientColorEnd: '#D2402D',
-                                bgColorWinXP: '#e54d39',
-                            },
-                            icon: '#pdf-big',
                         }
+                        // [OHOS: home] 新建入口只保留 docx/xlsx/pptx——官方第 4 项
+                        // PDF 表单卡（id:'form'，点击 create:new id=form）本壳
+                        // EditorPage.onTabCommand 无 form 分支，入口本身不可达，删卡
                     ],
                     onDocumentSelect: (docType) => {
                         window.sdk.command("create:new", docType);

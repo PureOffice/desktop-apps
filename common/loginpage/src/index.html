@@ -3,6 +3,11 @@
 <head>
     <title>Hello ONLYOFFICE Documents</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <!-- [OHOS: viewport] loginpage 是桌面起始页，官方 HTML 无 viewport meta——移动
+         形态 WebView 按 980px 默认虚拟视口渲染再整体缩小（约为编辑器页的一半；
+         编辑器页有官方 viewport meta 按 device-width 1:1 渲染）。写法对齐编辑器页
+         官方行；PC/2in1 不解析 meta 无影响 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=IE8"/>
     <meta name="description" content="" />
     <meta name="keywords" content="" />
