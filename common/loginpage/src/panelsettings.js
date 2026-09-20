@@ -81,7 +81,17 @@
         },
     }
 
-    const nativevars = window.RendererProcessVariable;
+    // [OHOS: rpv] RendererProcessVariable 兜底：官方桌面由 CEF 注入 RPV（含本地
+    // 自定义主题 localthemes 数组与 theme{id,type}），本壳无 CEF——无兜底时下方
+    // nativevars.localthemes / nativevars.theme 读取直接 TypeError（Uncaught 但
+    // 静默带伤）。默认主题与编辑器页 themeinit.js [OHOS: rpv] 兜底同源
+    // （'theme-classic-light'，用户已设置过的键值由宿主预写 localStorage、此处
+    // 不重复决议）；localthemes 置空数组（for..of 语义安全）。
+    const nativevars = window.RendererProcessVariable || {
+        theme: { id: 'theme-classic-light', type: THEME_TYPE_LIGHT },
+        localthemes: [],
+        rtl: false
+    };
 
         const create_colors_css = function (id, colors) {
             if ( !!colors && !!id ) {
