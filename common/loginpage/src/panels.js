@@ -57,30 +57,14 @@ $(document).ready(function() {
                     <span class="text" l10n>${utils.Lang.actOpenLocal}</span>
                 </a>
               </li>
-              <li class="menu-item">
-                <a l10n action="templates">
-                    <div class="icon-box">
-                        <svg class="icon" data-iconname="templates" data-precls="tool-icon">
-                            <use href="#templates"></use>
-                        </svg>
-                    </div>
-                    <span class="text" l10n>${utils.Lang.actTemplates}</span>
-                </a>
-              </li>
-              <li class="menu-item separator"></li>
-              <section id="idx-sidebar-portals" class="connect">
-              </section>
-              <li class="menu-item devider"></li>
-              <li class="menu-item">
-                  <a action="settings">
-                    <div class="icon-box">
-                      <svg class="icon" data-iconname="settings" data-precls="tool-icon">
-                          <use href="#settings"></use>
-                      </svg>
-                    </div>
-                    <span class="text" l10n>${utils.Lang.actSettings}</span>
-                  </a>
-              </li>
+              <!-- [OHOS: nav] 侧栏精简（纯本地编辑器定位，2026-09-05 用户决策；
+                   原 ascshim 页适配层 DOM 隐藏，源码化）：
+                   - 「模板」：官方模板列表走桌面原生桥 LocalFileTemplates（离线恒空）
+                   - 「云服务」块（separator + #idx-sidebar-portals + devider）：
+                     panelconnect 往挂载点灌 providers——纯本地无云；挂载点删除后
+                     panelconnect 的 $().html() 空集合 no-op，安全
+                   - 「设置」：入口指向官方桌面设置窗（本壳无此窗体）。
+                   about 项保留（hidden，1-g 品牌化语义） -->
               <li class="menu-item hidden">
                   <a action="about">
                     <div class="icon-box">

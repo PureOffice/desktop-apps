@@ -58,15 +58,11 @@
 
         // localStorage.removeItem('welcome');
 
-
-		//language=HTML
-        const helpLink = `<a l10n class="link" href="https://helpcenter.onlyoffice.com/" target="popup">${_lang.textHelpCenter}</a>`;
-		const welcomeBannerTemplate = !localStorage.getItem('welcome') ? `
-            <div id="area-welcome">
-                <h2 l10n>${_lang.welWelcome}</h2>
-                <p l10n class="text-normal">${_lang.welDescr}</p>
-                <p l10n class="text-normal">${_lang.welNeedHelp.replace('$1', helpLink)}</p>
-            </div>` : '';
+        // [OHOS: banner] 欢迎横幅不渲染（2026-09-06 用户决策：纯本地编辑器，
+        // 云描述文案与产品不符；官方语义=首次显示一次 localStorage 'welcome' 键，
+        // 原 ascshim 预写键值，源码化=模板直接置空。welDescr/welNeedHelp 等 l10n
+        // 键保留——render 尾的 setItem('welcome','0') 同官方行为，无消费无害）
+		const welcomeBannerTemplate = '';
 
         //language=HTML
         args.tplPage = `
@@ -78,7 +74,8 @@
 
                     <section id="area-document-creation-grid"></section>
                     ${welcomeBannerTemplate}
-                    <section id="area-dnd-file"></section>
+                    <!-- [OHOS: dnd] 拖放区不渲染（浏览器拖放不触发文件打开，
+                         打开入口在左侧菜单；dndZone.render 对空挂载点 no-op） -->
 
                     <div id="box-container">
                         <div id="box-recovery">
@@ -93,17 +90,11 @@
                             <div class="file-list-body scrollable"></div>
                         </div>
 
-                        <div id="box-recent">
-                            <div class="file-list-title">
-                                <h3 l10n>${_lang.listRecentFileTitle}</h3>
-                            </div>
-                            <div class="file-list-head text-normal">
-                                <div class="col-name" l10n>${_lang.colFileName}</div>
-                                <div class="col-location" l10n>${_lang.colLocation}</div>
-                                <div class="col-date" l10n>${_lang.colLastOpened}</div>
-                            </div>
-                            <div class="file-list-body scrollable"></div>
-                        </div>
+                        <!-- [OHOS: recents] 「最近使用」列表不渲染（2026-09-05
+                             用户决策：B 架构文件位置为 picker 授权型 uri，授权会被
+                             回收——路径语义不成立，半支持暴露假路径。JS 数据链
+                             （recents.ets/打开链）保留，待持久文件位置机制后恢复：
+                             恢复=还原本块模板） -->
                     </div>
                 </div>
             </div>`;

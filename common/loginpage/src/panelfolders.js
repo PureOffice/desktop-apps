@@ -62,7 +62,8 @@
                     <div class="file-list-title">
                         <h3 l10n>${_lang.listRecentDirTitle}</h3>
                     </div>
-                    <section id="area-dnd-file"></section>
+                    <!-- [OHOS: dnd] 拖放区不渲染（同 panelrecent；dndZone.render
+                         对空挂载点 no-op） -->
                     <div class="file-list-body"></div>
                     <div id="box-open-acts">
                         <button id="btn-openlocal" class="btn btn--primary" l10n>${_lang.btnBrowse}</button>
