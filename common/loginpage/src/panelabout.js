@@ -119,8 +119,8 @@
                                      版权行 = 归属声明（AGPL-3.0 即许可全文入口）+ 源码/声明行
                                      （AGPL §6 对应源码可得），点击 lic-open 弹层渲染全文
                                      （ArkWeb 无多窗口语义，绑定见 _on_native_message 建 view 后） -->
-                                <div class="ver-copyright about-field">基于 ONLYOFFICE DesktopEditors（<a class="link lic-open" href="/onlyoffice/licenses/LICENSE.txt">AGPL-3.0</a>）</div>
-                                <div class="ver-copyright about-field">完整源码与第三方声明见&nbsp;<a class="link lic-open" href="/onlyoffice/licenses/NOTICE.txt">NOTICE</a></div>
+                                <div class="ver-copyright about-field">${(_lang.aboutLicenseLine || 'Based on ONLYOFFICE DesktopEditors ({link})').replace('{link}', '<a class="link lic-open" href="/onlyoffice/licenses/LICENSE.txt">AGPL-3.0</a>')}</div>
+                                <div class="ver-copyright about-field">${(_lang.aboutSourceLine || 'Full source and third-party notices in {link}').replace('{link}', '<a class="link lic-open" href="/onlyoffice/licenses/NOTICE.txt">NOTICE</a>')}</div>
                             </div>
                         </div>`+
                         // '<div class="box-license flex-fill">'+
@@ -343,7 +343,7 @@
                     var _fire = function (ver) {
                         var opts = {
                             appname: 'Pure Office',
-                            version: (ver ? '版本 ' + ver : ''),
+                            version: (ver ? ((utils.Lang.aboutVersionPrefix || 'Version') + ' ' + ver) : ''),
                             commercial: false,
                             active: false,
                             changelog: false
